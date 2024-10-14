@@ -4,6 +4,7 @@ import json
 import time
 import random
 from uuid import uuid4
+from dataclasses import dataclass
 
 
 from kafka import KafkaProducer
@@ -16,14 +17,38 @@ trace_id = str(uuid4()).replace("-", "")
 root_span_id = str(uuid4()).replace("-", "")[:16]
 
 
+@dataclass
+class Span:
+    span_id: str
+    name: str
+    start_time: int
+    end_time: int
+
+
 def get_spans() -> List[dict]:
     start_time = int(time.time() * 1e9)
     end_time = int(time.time() * 1e9)
+    spans = []
 
-    for x in range(random.randint(0, 5)):
-        ...
-
+    for _ in range(random.randint(0, 5)):
+        span_id = str(uuid4()).replace("-", "")[:16]
+        name = uuid4().split("-")[0]
+        span_start_time = int(time.time() * 1e9)
         end_time += random.randint(0, 7)
+        spans.append(Span(span_id=span_id,
+                          name=name,
+                          start_time=span_start_time,
+                          end_time=end_time))
+
+    # root
+    name = uuid4().split("-")[0]
+    span_start_time = int(time.time() * 1e9)
+    spans.append(Span(span_id=root_span_id,
+                      name=name,
+                      start_time=span_start_time,
+                      end_time=end_time))
+
+    return spans
 
     return {
         "resource": {
